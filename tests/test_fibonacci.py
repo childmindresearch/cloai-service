@@ -1,4 +1,6 @@
 """Dummy."""
 
-def test_dummy():
+
+def test_dummy() -> None:
+    """Dummy."""
     assert True
