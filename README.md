@@ -14,7 +14,7 @@ Welcome to the CMI-DAIR Template Python Repository! This template is designed to
 - [ ] To set up an API documentation website, after the first successful build, go to the `Settings` tab of your repository, scroll down to the `GitHub Pages` section, and select `gh-pages` as the source. This will generate a link to your API docs.
 - [ ] Update stability badge in `README.md` to reflect the current state of the project. A list of stability badges to copy can be found [here](https://github.com/orangemug/stability-badges). The [node documentation](https://nodejs.org/docs/latest-v20.x/api/documentation.html#documentation_stability_index) can be used as a reference for the stability levels.
 
-# Project name
+# cloai fastapi service
 
 [![Build](https://github.com/childmindresearch/cloai-service/actions/workflows/test.yaml/badge.svg?branch=main)](https://github.com/childmindresearch/cloai-service/actions/workflows/test.yaml?query=branch%3Amain)
 [![codecov](https://codecov.io/gh/childmindresearch/cloai-service/branch/main/graph/badge.svg?token=22HWWFWPW5)](https://codecov.io/gh/childmindresearch/cloai-service)
@@ -23,38 +23,7 @@ Welcome to the CMI-DAIR Template Python Repository! This template is designed to
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/childmindresearch/cloai-service/blob/main/LICENSE)
 [![pages](https://img.shields.io/badge/api-docs-blue)](https://childmindresearch.github.io/cloai-service)
 
-What problem does this tool solve?
-
-## Features
-
-- A few
-- Cool
-- Things
-
-## Installation
-
-Install this package via :
 
 ```sh
-pip install cloaiservice
+uvicorn cloaiservice.main:app
 ```
-
-Or get the newest development version via:
-
-```sh
-pip install git+https://github.com/childmindresearch/cloai-service
-```
-
-## Quick start
-
-Short tutorial, maybe with a
-
-```Python
-import cloaiservice
-
-cloaiservice.short_example()
-```
-
-## Links or References
-
-- [https://www.wikipedia.de](https://www.wikipedia.de)
