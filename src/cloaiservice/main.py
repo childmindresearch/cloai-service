@@ -1,6 +1,6 @@
 """App entrypoint."""
 
-from fastapi import FastAPI
+from fastapi import APIRouter, FastAPI
 
 from cloaiservice.routes import clients, health, llm
 
@@ -10,6 +10,7 @@ app = FastAPI(
     version="0.1.0",
 )
 
-app.include_router(clients.router, prefix="/clients", tags=["clients"])
-app.include_router(llm.router, prefix="/llm", tags=["llm"])
-app.include_router(health.router, prefix="/health", tags=["health"])
+version_router = APIRouter(prefix="/v1")
+version_router.include_router(clients.router, prefix="/clients", tags=["clients"])
+version_router.include_router(llm.router, prefix="/llm", tags=["llm"])
+version_router.include_router(health.router, prefix="/health", tags=["health"])

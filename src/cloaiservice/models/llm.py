@@ -19,7 +19,7 @@ class InstructorRequest(PromptRequest):
     max_tokens: int = Field(4096, description="Maximum tokens to generate")
 
 
-class ChainOfVerificationRequest(BaseModel):
+class ChainOfVerificationRequest(PromptRequest):
     """Chain of verification request."""
 
     statements: list[str] | None = Field(None, description="Verification statements")

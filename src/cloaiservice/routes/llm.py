@@ -13,14 +13,18 @@ from cloaiservice.models.llm import (
     PromptRequest,
 )
 from cloaiservice.services import schemaconverter
+from fastapi import status
+import fastapi
 
 router = APIRouter()
 
 
-async def get_llm_client(id: str) -> cloai.LargeLanguageModel | None:
+async def get_llm_client(id: str) -> cloai.LargeLanguageModel:
     """Get an LLM client by its ID."""
-    return get_config().clients.get(id)
-
+    client = get_config().clients.get(id)
+    if client is None:
+        raise fastapi.HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Client not found")
+    return client
 
 @router.post("/run", response_model=LLMResponse)
 async def run_prompt(
