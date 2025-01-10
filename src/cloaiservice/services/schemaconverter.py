@@ -19,10 +19,10 @@ _TYPE_MAPPING = {
 }
 
 
-def _convert_property_type(prop_schema: Dict[str, Any]) -> tuple:
+def _convert_property_type(prop_schema: Dict[str, Any]) -> tuple[Any, Any]:
     """Convert JSON Schema property type to Python/Pydantic type."""
     if "type" not in prop_schema:
-        return (Any, ...)
+        return Any, ...
 
     prop_type = prop_schema["type"]
     is_required = prop_schema.get("required", True)
@@ -32,8 +32,8 @@ def _convert_property_type(prop_schema: Dict[str, Any]) -> tuple:
         items = prop_schema.get("items", {})
         if "type" in items:
             item_type, _ = _convert_property_type(items)
-            return (List[item_type], default_value)  # type: ignore
-        return (List[Any], default_value)
+            return List[item_type], default_value # type: ignore[valid-type]
+        return List[Any], default_value
 
     if prop_type == "object":
         nested_properties = prop_schema.get("properties", {})
@@ -47,7 +47,7 @@ def _convert_property_type(prop_schema: Dict[str, Any]) -> tuple:
                 "title": model_name,
             }
         )
-        return (nested_model, default_value)
+        return nested_model, default_value
 
     if isinstance(prop_type, list):
         # Handle multiple types (union type)
@@ -66,7 +66,7 @@ def _convert_property_type(prop_schema: Dict[str, Any]) -> tuple:
         )
 
     python_type = _TYPE_MAPPING.get(prop_type, Any)
-    return (python_type, default_value)
+    return python_type, default_value
 
 
 def create_model_from_schema(schema: Dict[str, Any]) -> type[BaseModel]:
@@ -76,7 +76,7 @@ def create_model_from_schema(schema: Dict[str, Any]) -> type[BaseModel]:
 
     properties = schema.get("properties", {})
     required = schema.get("required", [])
-    model_name = schema.get("title", "GeneratedModel")
+    model_name: str = schema.get("title", "GeneratedModel")
 
     field_definitions = {}
 
@@ -84,7 +84,9 @@ def create_model_from_schema(schema: Dict[str, Any]) -> type[BaseModel]:
         python_type, default_value = _convert_property_type(prop_schema)
 
         included_keys = ("description", "minItems", "maxItems")
-        field_kwargs = {key: prop_schema[key] for key in included_keys if key in prop_schema}
+        field_kwargs: dict[str, Any] = {
+            key: prop_schema[key] for key in included_keys if key in prop_schema
+        }
 
         # Handle default value
         if default_value is not ...:
@@ -94,4 +96,4 @@ def create_model_from_schema(schema: Dict[str, Any]) -> type[BaseModel]:
 
         field_definitions[prop_name] = (python_type, Field(**field_kwargs))
 
-    return create_model(model_name, **field_definitions)
+    return create_model(model_name, **field_definitions) # type: ignore[call-overload]

@@ -3,7 +3,8 @@
 from typing import Annotated
 
 import cloai
-from fastapi import APIRouter, Body, Depends, HTTPException
+import fastapi
+from fastapi import APIRouter, Body, Depends, HTTPException, status
 
 from cloaiservice.config import get_config
 from cloaiservice.models.llm import (
@@ -13,8 +14,6 @@ from cloaiservice.models.llm import (
     PromptRequest,
 )
 from cloaiservice.services import schemaconverter
-from fastapi import status
-import fastapi
 
 router = APIRouter()
 
@@ -23,8 +22,11 @@ async def get_llm_client(id: str) -> cloai.LargeLanguageModel:
     """Get an LLM client by its ID."""
     client = get_config().clients.get(id)
     if client is None:
-        raise fastapi.HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Client not found")
+        raise fastapi.HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Client not found"
+        )
     return client
+
 
 @router.post("/run", response_model=LLMResponse)
 async def run_prompt(
