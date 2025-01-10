@@ -32,7 +32,7 @@ def _convert_property_type(prop_schema: Dict[str, Any]) -> tuple[Any, Any]:
         items = prop_schema.get("items", {})
         if "type" in items:
             item_type, _ = _convert_property_type(items)
-            return List[item_type], default_value # type: ignore[valid-type]
+            return List[item_type], default_value  # type: ignore[valid-type]
         return List[Any], default_value
 
     if prop_type == "object":
@@ -96,4 +96,4 @@ def create_model_from_schema(schema: Dict[str, Any]) -> type[BaseModel]:
 
         field_definitions[prop_name] = (python_type, Field(**field_kwargs))
 
-    return create_model(model_name, **field_definitions) # type: ignore[call-overload]
+    return create_model(model_name, **field_definitions)  # type: ignore[call-overload]

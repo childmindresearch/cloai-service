@@ -108,7 +108,7 @@ def get_config() -> Config:
     if not config_path.exists():
         raise FileNotFoundError(
             (
-                f"Config file not found at {config_path} and CONFIG_JSON environment " 
+                f"Config file not found at {config_path} and CONFIG_JSON environment "
                 "variable not set."
             )
         )

@@ -1,4 +1,5 @@
 """Unit tests for the schema converter."""
+
 import pydantic
 
 from cloaiservice.services import schemaconverter
