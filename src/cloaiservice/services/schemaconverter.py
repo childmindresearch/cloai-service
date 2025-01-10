@@ -83,9 +83,8 @@ def create_model_from_schema(schema: Dict[str, Any]) -> type[BaseModel]:
     for prop_name, prop_schema in properties.items():
         python_type, default_value = _convert_property_type(prop_schema)
 
-        field_kwargs = {}
-        if "description" in prop_schema:
-            field_kwargs["description"] = prop_schema["description"]
+        included_keys = ("description", "minItems", "maxItems")
+        field_kwargs = {key: prop_schema[key] for key in included_keys if key in prop_schema}
 
         # Handle default value
         if default_value is not ...:
