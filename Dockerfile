@@ -1,11 +1,12 @@
-FROM python:3.11-slim
+FROM python:3.11-alpine
 
 RUN pip install poetry
 
 WORKDIR /app
-COPY . .
+COPY poetry.lock pyproject.toml LICENSE README.md ./
+COPY src src
 
-RUN poetry install
+RUN poetry install --no-cache
 
 EXPOSE 8000
 
