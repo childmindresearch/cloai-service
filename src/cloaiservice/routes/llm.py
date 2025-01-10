@@ -1,5 +1,5 @@
 """Endpoints talking to LLMs."""
-
+import time
 from typing import Annotated
 
 import cloai
@@ -19,7 +19,7 @@ import fastapi
 router = APIRouter()
 
 
-async def get_llm_client(id: str) -> cloai.LargeLanguageModel:
+def get_llm_client(id: str) -> cloai.LargeLanguageModel:
     """Get an LLM client by its ID."""
     client = get_config().clients.get(id)
     if client is None:
