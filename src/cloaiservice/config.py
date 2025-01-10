@@ -107,7 +107,10 @@ def get_config() -> Config:
     config_path = pathlib.Path(environ.get("CONFIG_PATH", "config.json"))
     if not config_path.exists():
         raise FileNotFoundError(
-            f"Config file not found at {config_path} and CONFIG_JSON environment variable not set"
+            (
+                f"Config file not found at {config_path} and CONFIG_JSON environment "
+                "variable not set."
+            )
         )
 
     client_config = ClientConfig.model_validate_json(config_path.read_text("utf8"))
