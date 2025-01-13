@@ -98,20 +98,19 @@ def get_config() -> Config:
     3. config.json in current directory
     """
     # First try loading from CONFIG_JSON environment variable
-    config_json = environ.get("CONFIG_JSON")
-    if config_json:
-        client_config = ClientConfig.model_validate_json(config_json)
-        return Config(clients=client_config.create_clients())
-
-    # Fall back to config file
     config_path = pathlib.Path(environ.get("CONFIG_PATH", "config.json"))
-    if not config_path.exists():
-        raise FileNotFoundError(
-            (
-                f"Config file not found at {config_path} and CONFIG_JSON environment "
-                "variable not set."
-            )
+    try:
+        config_json = environ.get("CONFIG_JSON", config_path.read_text())
+    except FileNotFoundError:
+        raise fastapi.HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            "Config file not found and CONFIG_JSON environment variable not set.",
         )
 
-    client_config = ClientConfig.model_validate_json(config_path.read_text("utf8"))
+    try:
+        client_config = ClientConfig.model_validate_json(config_json)
+    except pydantic.ValidationError:
+        raise fastapi.HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR, "Invalid model JSON configuration."
+        )
     return Config(clients=client_config.create_clients())
