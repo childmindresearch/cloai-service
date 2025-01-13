@@ -18,7 +18,7 @@ from cloaiservice.services import schemaconverter
 router = APIRouter()
 
 
-async def get_llm_client(id: str) -> cloai.LargeLanguageModel:
+def get_llm_client(id: str) -> cloai.LargeLanguageModel:
     """Get an LLM client by its ID."""
     client = get_config().clients.get(id)
     if client is None:
@@ -39,8 +39,8 @@ async def run_prompt(
             system_prompt=request.system_prompt, user_prompt=request.user_prompt
         )
         return LLMResponse(result=result)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as exc_info:
+        raise HTTPException(status_code=500, detail=str(exc_info)) from exc_info
 
 
 @router.post("/instructor", response_model=LLMResponse)
@@ -59,8 +59,8 @@ async def run_instructor(
             max_tokens=request.max_tokens,
         )
         return LLMResponse(result=result)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as exc_info:
+        raise HTTPException(status_code=500, detail=str(exc_info)) from exc_info
 
 
 @router.post("/cov", response_model=LLMResponse)
@@ -70,7 +70,7 @@ async def chain_of_verification(
 ) -> LLMResponse:
     """Run chain of verification on a prompt."""
     try:
-        result = await llm.chain_of_verification(  # type: ignore # pycharm is confused
+        result = await llm.chain_of_verification(  # type: ignore[call-arg] # pycharm is confused
             system_prompt=request.system_prompt,
             user_prompt=request.user_prompt,
             response_model=str,
@@ -80,5 +80,5 @@ async def chain_of_verification(
             error_on_iteration_limit=request.error_on_iteration_limit,
         )
         return LLMResponse(result=result)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as exc_info:
+        raise HTTPException(status_code=500, detail=str(exc_info)) from exc_info
