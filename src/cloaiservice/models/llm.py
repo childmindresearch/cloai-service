@@ -1,10 +1,10 @@
 """LLM endpoint data models."""
 
-from typing import Any
+from typing import Any, Self
 
 import fastapi
-from fastapi import status
 import pydantic
+from fastapi import status
 from pydantic import BaseModel, Field
 
 
@@ -28,7 +28,10 @@ class ChainOfVerificationRequest(PromptRequest):
     max_verifications: int = Field(3, description="Maximum verification iterations")
     statements: list[str] | None = Field(
         None,
-        description="Verification statements. If None are provided, create_new_statements must be set to True.",
+        description=(
+            "Verification statements. If None are provided, "
+            "create_new_statements must be set to True."
+        ),
     )
     create_new_statements: bool = Field(
         False,
@@ -40,12 +43,15 @@ class ChainOfVerificationRequest(PromptRequest):
     )
 
     @pydantic.model_validator(mode="after")
-    def validate_create_statements_if_none_provided(self):
+    def validate_create_statements_if_none_provided(self) -> Self:
         """Raises 400 if no statements are provided or generated."""
         if not self.statements and not self.create_new_statements:
             raise fastapi.HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="If no statements are provided then create_new_statements must be set to True.",
+                detail=(
+                    "If no statements are provided then create_new_statements "
+                    "must be set to True."
+                ),
             )
         return self
 

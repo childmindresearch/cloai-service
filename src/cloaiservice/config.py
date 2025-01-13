@@ -5,12 +5,11 @@ from functools import lru_cache
 from os import environ
 from typing import Literal
 
+import cloai
 import fastapi
 import pydantic
-from fastapi import status
-
-import cloai
 from cloai.llm import bedrock as cloai_bedrock
+from fastapi import status
 from openai.types import chat_model
 from pydantic import BaseModel, Field
 
