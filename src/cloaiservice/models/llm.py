@@ -2,6 +2,9 @@
 
 from typing import Any
 
+import fastapi
+from fastapi import status
+import pydantic
 from pydantic import BaseModel, Field
 
 
@@ -22,14 +25,29 @@ class InstructorRequest(PromptRequest):
 class ChainOfVerificationRequest(PromptRequest):
     """Chain of verification request."""
 
-    statements: list[str] | None = Field(None, description="Verification statements")
     max_verifications: int = Field(3, description="Maximum verification iterations")
+    statements: list[str] | None = Field(
+        None,
+        description="Verification statements. If None are provided, create_new_statements must be set to True.",
+    )
     create_new_statements: bool = Field(
-        False, description="Whether to generate new verification statements"
+        False,
+        description="Whether to generate new verification statements. If no statements"
+        "are provided, then this must be set to True.",
     )
     error_on_iteration_limit: bool = Field(
         False, description="Whether to raise an error on hitting iteration limit"
     )
+
+    @pydantic.model_validator(mode="after")
+    def validate_create_statements_if_none_provided(self):
+        """Raises 400 if no statements are provided or generated."""
+        if not self.statements and not self.create_new_statements:
+            raise fastapi.HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="If no statements are provided then create_new_statements must be set to True.",
+            )
+        return self
 
 
 class LLMResponse(BaseModel):
