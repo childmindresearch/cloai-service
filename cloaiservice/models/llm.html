@@ -64,16 +64,19 @@
                     <a class="class" href="#ChainOfVerificationRequest">ChainOfVerificationRequest</a>
                             <ul class="memberlist">
                         <li>
-                                <a class="variable" href="#ChainOfVerificationRequest.statements">statements</a>
+                                <a class="variable" href="#ChainOfVerificationRequest.max_verifications">max_verifications</a>
                         </li>
                         <li>
-                                <a class="variable" href="#ChainOfVerificationRequest.max_verifications">max_verifications</a>
+                                <a class="variable" href="#ChainOfVerificationRequest.statements">statements</a>
                         </li>
                         <li>
                                 <a class="variable" href="#ChainOfVerificationRequest.create_new_statements">create_new_statements</a>
                         </li>
                         <li>
                                 <a class="variable" href="#ChainOfVerificationRequest.error_on_iteration_limit">error_on_iteration_limit</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#ChainOfVerificationRequest.validate_create_statements_if_none_provided">validate_create_statements_if_none_provided</a>
                         </li>
                         <li>
                                 <a class="variable" href="#ChainOfVerificationRequest.model_config">model_config</a>
@@ -118,42 +121,66 @@
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="sd">&quot;&quot;&quot;LLM endpoint data models.&quot;&quot;&quot;</span>
 </span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a>
-</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Self</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a>
-</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span>
-</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a>
-</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a>
-</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="k">class</span><span class="w"> </span><span class="nc">PromptRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Prompt request.&quot;&quot;&quot;</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">fastapi</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">pydantic</span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">status</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a>
 </span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a>
-</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a>    <span class="n">system_prompt</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The system prompt to send to the LLM&quot;</span><span class="p">)</span>
-</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a>    <span class="n">user_prompt</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The user prompt to send to the LLM&quot;</span><span class="p">)</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="k">class</span><span class="w"> </span><span class="nc">PromptRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Prompt request.&quot;&quot;&quot;</span>
 </span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a>
-</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a>
-</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="k">class</span><span class="w"> </span><span class="nc">InstructorRequest</span><span class="p">(</span><span class="n">PromptRequest</span><span class="p">):</span>
-</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Instructor request.&quot;&quot;&quot;</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a>    <span class="n">system_prompt</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The system prompt to send to the LLM&quot;</span><span class="p">)</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a>    <span class="n">user_prompt</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The user prompt to send to the LLM&quot;</span><span class="p">)</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a>
 </span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>    <span class="n">response_model</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;JSON schema response model&quot;</span><span class="p">)</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>    <span class="n">max_tokens</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mi">4096</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Maximum tokens to generate&quot;</span><span class="p">)</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="k">class</span><span class="w"> </span><span class="nc">InstructorRequest</span><span class="p">(</span><span class="n">PromptRequest</span><span class="p">):</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Instructor request.&quot;&quot;&quot;</span>
 </span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>
-</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>
-</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a><span class="k">class</span><span class="w"> </span><span class="nc">ChainOfVerificationRequest</span><span class="p">(</span><span class="n">PromptRequest</span><span class="p">):</span>
-</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Chain of verification request.&quot;&quot;&quot;</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>    <span class="n">response_model</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;JSON schema response model&quot;</span><span class="p">)</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>    <span class="n">max_tokens</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mi">4096</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Maximum tokens to generate&quot;</span><span class="p">)</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>
 </span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>
-</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>    <span class="n">statements</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Verification statements&quot;</span><span class="p">)</span>
-</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>    <span class="n">max_verifications</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Maximum verification iterations&quot;</span><span class="p">)</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>    <span class="n">create_new_statements</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>        <span class="kc">False</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Whether to generate new verification statements&quot;</span>
-</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>    <span class="p">)</span>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>    <span class="n">error_on_iteration_limit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
-</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>        <span class="kc">False</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Whether to raise an error on hitting iteration limit&quot;</span>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>    <span class="p">)</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>
-</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a><span class="k">class</span><span class="w"> </span><span class="nc">LLMResponse</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;LLM Response base class.&quot;&quot;&quot;</span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>
-</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>    <span class="n">result</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The LLM response&quot;</span><span class="p">)</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a><span class="k">class</span><span class="w"> </span><span class="nc">ChainOfVerificationRequest</span><span class="p">(</span><span class="n">PromptRequest</span><span class="p">):</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Chain of verification request.&quot;&quot;&quot;</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>
+</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>    <span class="n">max_verifications</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Maximum verification iterations&quot;</span><span class="p">)</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>    <span class="n">statements</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>        <span class="kc">None</span><span class="p">,</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>        <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>            <span class="s2">&quot;Verification statements. If None are provided, &quot;</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>            <span class="s2">&quot;create_new_statements must be set to True.&quot;</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>        <span class="p">),</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>    <span class="p">)</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>    <span class="n">create_new_statements</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>        <span class="kc">False</span><span class="p">,</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Whether to generate new verification statements. If no statements&quot;</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>        <span class="s2">&quot;are provided, then this must be set to True.&quot;</span><span class="p">,</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>    <span class="p">)</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>    <span class="n">error_on_iteration_limit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>        <span class="kc">False</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Whether to raise an error on hitting iteration limit&quot;</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>    <span class="p">)</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>
+</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a>    <span class="nd">@pydantic</span><span class="o">.</span><span class="n">model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">validate_create_statements_if_none_provided</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Raises 400 if no statements are provided or generated.&quot;&quot;&quot;</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">statements</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_new_statements</span><span class="p">:</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a>            <span class="k">raise</span> <span class="n">fastapi</span><span class="o">.</span><span class="n">HTTPException</span><span class="p">(</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>                <span class="n">status_code</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">,</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>                <span class="n">detail</span><span class="o">=</span><span class="p">(</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a>                    <span class="s2">&quot;If no statements are provided then create_new_statements &quot;</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a>                    <span class="s2">&quot;must be set to True.&quot;</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a>                <span class="p">),</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a>            <span class="p">)</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>        <span class="k">return</span> <span class="bp">self</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>
+</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>
+</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a><span class="k">class</span><span class="w"> </span><span class="nc">LLMResponse</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;LLM Response base class.&quot;&quot;&quot;</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a>
+</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a>    <span class="n">result</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The LLM response&quot;</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -169,11 +196,11 @@
 
     </div>
     <a class="headerlink" href="#PromptRequest"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="PromptRequest-9"><a href="#PromptRequest-9"><span class="linenos"> 9</span></a><span class="k">class</span><span class="w"> </span><span class="nc">PromptRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="PromptRequest-10"><a href="#PromptRequest-10"><span class="linenos">10</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Prompt request.&quot;&quot;&quot;</span>
-</span><span id="PromptRequest-11"><a href="#PromptRequest-11"><span class="linenos">11</span></a>
-</span><span id="PromptRequest-12"><a href="#PromptRequest-12"><span class="linenos">12</span></a>    <span class="n">system_prompt</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The system prompt to send to the LLM&quot;</span><span class="p">)</span>
-</span><span id="PromptRequest-13"><a href="#PromptRequest-13"><span class="linenos">13</span></a>    <span class="n">user_prompt</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The user prompt to send to the LLM&quot;</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="PromptRequest-12"><a href="#PromptRequest-12"><span class="linenos">12</span></a><span class="k">class</span><span class="w"> </span><span class="nc">PromptRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="PromptRequest-13"><a href="#PromptRequest-13"><span class="linenos">13</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Prompt request.&quot;&quot;&quot;</span>
+</span><span id="PromptRequest-14"><a href="#PromptRequest-14"><span class="linenos">14</span></a>
+</span><span id="PromptRequest-15"><a href="#PromptRequest-15"><span class="linenos">15</span></a>    <span class="n">system_prompt</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The system prompt to send to the LLM&quot;</span><span class="p">)</span>
+</span><span id="PromptRequest-16"><a href="#PromptRequest-16"><span class="linenos">16</span></a>    <span class="n">user_prompt</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The user prompt to send to the LLM&quot;</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -229,11 +256,11 @@
 
     </div>
     <a class="headerlink" href="#InstructorRequest"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="InstructorRequest-16"><a href="#InstructorRequest-16"><span class="linenos">16</span></a><span class="k">class</span><span class="w"> </span><span class="nc">InstructorRequest</span><span class="p">(</span><span class="n">PromptRequest</span><span class="p">):</span>
-</span><span id="InstructorRequest-17"><a href="#InstructorRequest-17"><span class="linenos">17</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Instructor request.&quot;&quot;&quot;</span>
-</span><span id="InstructorRequest-18"><a href="#InstructorRequest-18"><span class="linenos">18</span></a>
-</span><span id="InstructorRequest-19"><a href="#InstructorRequest-19"><span class="linenos">19</span></a>    <span class="n">response_model</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;JSON schema response model&quot;</span><span class="p">)</span>
-</span><span id="InstructorRequest-20"><a href="#InstructorRequest-20"><span class="linenos">20</span></a>    <span class="n">max_tokens</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mi">4096</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Maximum tokens to generate&quot;</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="InstructorRequest-19"><a href="#InstructorRequest-19"><span class="linenos">19</span></a><span class="k">class</span><span class="w"> </span><span class="nc">InstructorRequest</span><span class="p">(</span><span class="n">PromptRequest</span><span class="p">):</span>
+</span><span id="InstructorRequest-20"><a href="#InstructorRequest-20"><span class="linenos">20</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Instructor request.&quot;&quot;&quot;</span>
+</span><span id="InstructorRequest-21"><a href="#InstructorRequest-21"><span class="linenos">21</span></a>
+</span><span id="InstructorRequest-22"><a href="#InstructorRequest-22"><span class="linenos">22</span></a>    <span class="n">response_model</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;JSON schema response model&quot;</span><span class="p">)</span>
+</span><span id="InstructorRequest-23"><a href="#InstructorRequest-23"><span class="linenos">23</span></a>    <span class="n">max_tokens</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mi">4096</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Maximum tokens to generate&quot;</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -299,17 +326,38 @@
 
     </div>
     <a class="headerlink" href="#ChainOfVerificationRequest"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="ChainOfVerificationRequest-23"><a href="#ChainOfVerificationRequest-23"><span class="linenos">23</span></a><span class="k">class</span><span class="w"> </span><span class="nc">ChainOfVerificationRequest</span><span class="p">(</span><span class="n">PromptRequest</span><span class="p">):</span>
-</span><span id="ChainOfVerificationRequest-24"><a href="#ChainOfVerificationRequest-24"><span class="linenos">24</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Chain of verification request.&quot;&quot;&quot;</span>
-</span><span id="ChainOfVerificationRequest-25"><a href="#ChainOfVerificationRequest-25"><span class="linenos">25</span></a>
-</span><span id="ChainOfVerificationRequest-26"><a href="#ChainOfVerificationRequest-26"><span class="linenos">26</span></a>    <span class="n">statements</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Verification statements&quot;</span><span class="p">)</span>
-</span><span id="ChainOfVerificationRequest-27"><a href="#ChainOfVerificationRequest-27"><span class="linenos">27</span></a>    <span class="n">max_verifications</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Maximum verification iterations&quot;</span><span class="p">)</span>
-</span><span id="ChainOfVerificationRequest-28"><a href="#ChainOfVerificationRequest-28"><span class="linenos">28</span></a>    <span class="n">create_new_statements</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
-</span><span id="ChainOfVerificationRequest-29"><a href="#ChainOfVerificationRequest-29"><span class="linenos">29</span></a>        <span class="kc">False</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Whether to generate new verification statements&quot;</span>
-</span><span id="ChainOfVerificationRequest-30"><a href="#ChainOfVerificationRequest-30"><span class="linenos">30</span></a>    <span class="p">)</span>
-</span><span id="ChainOfVerificationRequest-31"><a href="#ChainOfVerificationRequest-31"><span class="linenos">31</span></a>    <span class="n">error_on_iteration_limit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
-</span><span id="ChainOfVerificationRequest-32"><a href="#ChainOfVerificationRequest-32"><span class="linenos">32</span></a>        <span class="kc">False</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Whether to raise an error on hitting iteration limit&quot;</span>
-</span><span id="ChainOfVerificationRequest-33"><a href="#ChainOfVerificationRequest-33"><span class="linenos">33</span></a>    <span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="ChainOfVerificationRequest-26"><a href="#ChainOfVerificationRequest-26"><span class="linenos">26</span></a><span class="k">class</span><span class="w"> </span><span class="nc">ChainOfVerificationRequest</span><span class="p">(</span><span class="n">PromptRequest</span><span class="p">):</span>
+</span><span id="ChainOfVerificationRequest-27"><a href="#ChainOfVerificationRequest-27"><span class="linenos">27</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Chain of verification request.&quot;&quot;&quot;</span>
+</span><span id="ChainOfVerificationRequest-28"><a href="#ChainOfVerificationRequest-28"><span class="linenos">28</span></a>
+</span><span id="ChainOfVerificationRequest-29"><a href="#ChainOfVerificationRequest-29"><span class="linenos">29</span></a>    <span class="n">max_verifications</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Maximum verification iterations&quot;</span><span class="p">)</span>
+</span><span id="ChainOfVerificationRequest-30"><a href="#ChainOfVerificationRequest-30"><span class="linenos">30</span></a>    <span class="n">statements</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+</span><span id="ChainOfVerificationRequest-31"><a href="#ChainOfVerificationRequest-31"><span class="linenos">31</span></a>        <span class="kc">None</span><span class="p">,</span>
+</span><span id="ChainOfVerificationRequest-32"><a href="#ChainOfVerificationRequest-32"><span class="linenos">32</span></a>        <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+</span><span id="ChainOfVerificationRequest-33"><a href="#ChainOfVerificationRequest-33"><span class="linenos">33</span></a>            <span class="s2">&quot;Verification statements. If None are provided, &quot;</span>
+</span><span id="ChainOfVerificationRequest-34"><a href="#ChainOfVerificationRequest-34"><span class="linenos">34</span></a>            <span class="s2">&quot;create_new_statements must be set to True.&quot;</span>
+</span><span id="ChainOfVerificationRequest-35"><a href="#ChainOfVerificationRequest-35"><span class="linenos">35</span></a>        <span class="p">),</span>
+</span><span id="ChainOfVerificationRequest-36"><a href="#ChainOfVerificationRequest-36"><span class="linenos">36</span></a>    <span class="p">)</span>
+</span><span id="ChainOfVerificationRequest-37"><a href="#ChainOfVerificationRequest-37"><span class="linenos">37</span></a>    <span class="n">create_new_statements</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+</span><span id="ChainOfVerificationRequest-38"><a href="#ChainOfVerificationRequest-38"><span class="linenos">38</span></a>        <span class="kc">False</span><span class="p">,</span>
+</span><span id="ChainOfVerificationRequest-39"><a href="#ChainOfVerificationRequest-39"><span class="linenos">39</span></a>        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Whether to generate new verification statements. If no statements&quot;</span>
+</span><span id="ChainOfVerificationRequest-40"><a href="#ChainOfVerificationRequest-40"><span class="linenos">40</span></a>        <span class="s2">&quot;are provided, then this must be set to True.&quot;</span><span class="p">,</span>
+</span><span id="ChainOfVerificationRequest-41"><a href="#ChainOfVerificationRequest-41"><span class="linenos">41</span></a>    <span class="p">)</span>
+</span><span id="ChainOfVerificationRequest-42"><a href="#ChainOfVerificationRequest-42"><span class="linenos">42</span></a>    <span class="n">error_on_iteration_limit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+</span><span id="ChainOfVerificationRequest-43"><a href="#ChainOfVerificationRequest-43"><span class="linenos">43</span></a>        <span class="kc">False</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Whether to raise an error on hitting iteration limit&quot;</span>
+</span><span id="ChainOfVerificationRequest-44"><a href="#ChainOfVerificationRequest-44"><span class="linenos">44</span></a>    <span class="p">)</span>
+</span><span id="ChainOfVerificationRequest-45"><a href="#ChainOfVerificationRequest-45"><span class="linenos">45</span></a>
+</span><span id="ChainOfVerificationRequest-46"><a href="#ChainOfVerificationRequest-46"><span class="linenos">46</span></a>    <span class="nd">@pydantic</span><span class="o">.</span><span class="n">model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+</span><span id="ChainOfVerificationRequest-47"><a href="#ChainOfVerificationRequest-47"><span class="linenos">47</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">validate_create_statements_if_none_provided</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+</span><span id="ChainOfVerificationRequest-48"><a href="#ChainOfVerificationRequest-48"><span class="linenos">48</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Raises 400 if no statements are provided or generated.&quot;&quot;&quot;</span>
+</span><span id="ChainOfVerificationRequest-49"><a href="#ChainOfVerificationRequest-49"><span class="linenos">49</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">statements</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_new_statements</span><span class="p">:</span>
+</span><span id="ChainOfVerificationRequest-50"><a href="#ChainOfVerificationRequest-50"><span class="linenos">50</span></a>            <span class="k">raise</span> <span class="n">fastapi</span><span class="o">.</span><span class="n">HTTPException</span><span class="p">(</span>
+</span><span id="ChainOfVerificationRequest-51"><a href="#ChainOfVerificationRequest-51"><span class="linenos">51</span></a>                <span class="n">status_code</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">,</span>
+</span><span id="ChainOfVerificationRequest-52"><a href="#ChainOfVerificationRequest-52"><span class="linenos">52</span></a>                <span class="n">detail</span><span class="o">=</span><span class="p">(</span>
+</span><span id="ChainOfVerificationRequest-53"><a href="#ChainOfVerificationRequest-53"><span class="linenos">53</span></a>                    <span class="s2">&quot;If no statements are provided then create_new_statements &quot;</span>
+</span><span id="ChainOfVerificationRequest-54"><a href="#ChainOfVerificationRequest-54"><span class="linenos">54</span></a>                    <span class="s2">&quot;must be set to True.&quot;</span>
+</span><span id="ChainOfVerificationRequest-55"><a href="#ChainOfVerificationRequest-55"><span class="linenos">55</span></a>                <span class="p">),</span>
+</span><span id="ChainOfVerificationRequest-56"><a href="#ChainOfVerificationRequest-56"><span class="linenos">56</span></a>            <span class="p">)</span>
+</span><span id="ChainOfVerificationRequest-57"><a href="#ChainOfVerificationRequest-57"><span class="linenos">57</span></a>        <span class="k">return</span> <span class="bp">self</span>
 </span></pre></div>
 
 
@@ -317,17 +365,6 @@
 </div>
 
 
-                            <div id="ChainOfVerificationRequest.statements" class="classattr">
-                                <div class="attr variable">
-            <span class="name">statements</span><span class="annotation">: list[str] | None</span>
-
-        
-    </div>
-    <a class="headerlink" href="#ChainOfVerificationRequest.statements"></a>
-    
-    
-
-                            </div>
                             <div id="ChainOfVerificationRequest.max_verifications" class="classattr">
                                 <div class="attr variable">
             <span class="name">max_verifications</span><span class="annotation">: int</span>
@@ -335,6 +372,17 @@
         
     </div>
     <a class="headerlink" href="#ChainOfVerificationRequest.max_verifications"></a>
+    
+    
+
+                            </div>
+                            <div id="ChainOfVerificationRequest.statements" class="classattr">
+                                <div class="attr variable">
+            <span class="name">statements</span><span class="annotation">: list[str] | None</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ChainOfVerificationRequest.statements"></a>
     
     
 
@@ -359,6 +407,38 @@
     <a class="headerlink" href="#ChainOfVerificationRequest.error_on_iteration_limit"></a>
     
     
+
+                            </div>
+                            <div id="ChainOfVerificationRequest.validate_create_statements_if_none_provided" class="classattr">
+                                        <input id="ChainOfVerificationRequest.validate_create_statements_if_none_provided-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+                    <div class="decorator decorator-pydantic.model_validator">@pydantic.model_validator(mode=&#39;after&#39;)</div>
+
+        <span class="def">def</span>
+        <span class="name">validate_create_statements_if_none_provided</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">) -> <span class="n">Self</span>:</span></span>
+
+                <label class="view-source-button" for="ChainOfVerificationRequest.validate_create_statements_if_none_provided-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#ChainOfVerificationRequest.validate_create_statements_if_none_provided"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="ChainOfVerificationRequest.validate_create_statements_if_none_provided-46"><a href="#ChainOfVerificationRequest.validate_create_statements_if_none_provided-46"><span class="linenos">46</span></a>    <span class="nd">@pydantic</span><span class="o">.</span><span class="n">model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+</span><span id="ChainOfVerificationRequest.validate_create_statements_if_none_provided-47"><a href="#ChainOfVerificationRequest.validate_create_statements_if_none_provided-47"><span class="linenos">47</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">validate_create_statements_if_none_provided</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+</span><span id="ChainOfVerificationRequest.validate_create_statements_if_none_provided-48"><a href="#ChainOfVerificationRequest.validate_create_statements_if_none_provided-48"><span class="linenos">48</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Raises 400 if no statements are provided or generated.&quot;&quot;&quot;</span>
+</span><span id="ChainOfVerificationRequest.validate_create_statements_if_none_provided-49"><a href="#ChainOfVerificationRequest.validate_create_statements_if_none_provided-49"><span class="linenos">49</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">statements</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_new_statements</span><span class="p">:</span>
+</span><span id="ChainOfVerificationRequest.validate_create_statements_if_none_provided-50"><a href="#ChainOfVerificationRequest.validate_create_statements_if_none_provided-50"><span class="linenos">50</span></a>            <span class="k">raise</span> <span class="n">fastapi</span><span class="o">.</span><span class="n">HTTPException</span><span class="p">(</span>
+</span><span id="ChainOfVerificationRequest.validate_create_statements_if_none_provided-51"><a href="#ChainOfVerificationRequest.validate_create_statements_if_none_provided-51"><span class="linenos">51</span></a>                <span class="n">status_code</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">,</span>
+</span><span id="ChainOfVerificationRequest.validate_create_statements_if_none_provided-52"><a href="#ChainOfVerificationRequest.validate_create_statements_if_none_provided-52"><span class="linenos">52</span></a>                <span class="n">detail</span><span class="o">=</span><span class="p">(</span>
+</span><span id="ChainOfVerificationRequest.validate_create_statements_if_none_provided-53"><a href="#ChainOfVerificationRequest.validate_create_statements_if_none_provided-53"><span class="linenos">53</span></a>                    <span class="s2">&quot;If no statements are provided then create_new_statements &quot;</span>
+</span><span id="ChainOfVerificationRequest.validate_create_statements_if_none_provided-54"><a href="#ChainOfVerificationRequest.validate_create_statements_if_none_provided-54"><span class="linenos">54</span></a>                    <span class="s2">&quot;must be set to True.&quot;</span>
+</span><span id="ChainOfVerificationRequest.validate_create_statements_if_none_provided-55"><a href="#ChainOfVerificationRequest.validate_create_statements_if_none_provided-55"><span class="linenos">55</span></a>                <span class="p">),</span>
+</span><span id="ChainOfVerificationRequest.validate_create_statements_if_none_provided-56"><a href="#ChainOfVerificationRequest.validate_create_statements_if_none_provided-56"><span class="linenos">56</span></a>            <span class="p">)</span>
+</span><span id="ChainOfVerificationRequest.validate_create_statements_if_none_provided-57"><a href="#ChainOfVerificationRequest.validate_create_statements_if_none_provided-57"><span class="linenos">57</span></a>        <span class="k">return</span> <span class="bp">self</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Raises 400 if no statements are provided or generated.</p>
+</div>
+
 
                             </div>
                             <div id="ChainOfVerificationRequest.model_config" class="classattr">
@@ -397,10 +477,10 @@
 
     </div>
     <a class="headerlink" href="#LLMResponse"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="LLMResponse-36"><a href="#LLMResponse-36"><span class="linenos">36</span></a><span class="k">class</span><span class="w"> </span><span class="nc">LLMResponse</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="LLMResponse-37"><a href="#LLMResponse-37"><span class="linenos">37</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;LLM Response base class.&quot;&quot;&quot;</span>
-</span><span id="LLMResponse-38"><a href="#LLMResponse-38"><span class="linenos">38</span></a>
-</span><span id="LLMResponse-39"><a href="#LLMResponse-39"><span class="linenos">39</span></a>    <span class="n">result</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The LLM response&quot;</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="LLMResponse-60"><a href="#LLMResponse-60"><span class="linenos">60</span></a><span class="k">class</span><span class="w"> </span><span class="nc">LLMResponse</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="LLMResponse-61"><a href="#LLMResponse-61"><span class="linenos">61</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;LLM Response base class.&quot;&quot;&quot;</span>
+</span><span id="LLMResponse-62"><a href="#LLMResponse-62"><span class="linenos">62</span></a>
+</span><span id="LLMResponse-63"><a href="#LLMResponse-63"><span class="linenos">63</span></a>    <span class="n">result</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The LLM response&quot;</span><span class="p">)</span>
 </span></pre></div>
 
 
