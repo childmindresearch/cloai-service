@@ -108,13 +108,15 @@ def get_config() -> Config:
     """
     # First try loading from CONFIG_JSON environment variable
     config_path = pathlib.Path(environ.get("CONFIG_PATH", "config.json"))
-    try:
-        config_json = environ.get("CONFIG_JSON", config_path.read_text())
-    except FileNotFoundError:
-        raise fastapi.HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
-            "Config file not found and CONFIG_JSON environment variable not set.",
-        )
+    config_json = environ.get("CONFIG_JSON")
+    if not config_json:
+        try:
+           config_json = config_path.read_text()
+        except FileNotFoundError:
+            raise fastapi.HTTPException(
+                status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "Config file not found and CONFIG_JSON environment variable not set.",
+            )
 
     try:
         client_config = ClientConfig.model_validate_json(config_json)
