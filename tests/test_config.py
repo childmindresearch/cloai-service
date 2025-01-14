@@ -40,7 +40,7 @@ def reset_env_variables(*env_vars):
         @functools.wraps(function)
         def wrapper(*args, **kwargs):
             cache = {
-                var: os.environ.get(var) for var in env_vars if os.environ.get(var)
+                var: os.environ.get(var, "") for var in env_vars
             }
             try:
                 function(*args, **kwargs)
