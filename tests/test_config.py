@@ -3,12 +3,12 @@
 import functools
 import os
 import pathlib
-from typing import Any
+from typing import Any, Callable
 
 import fastapi
 import pytest
 from fastapi import status
-from typing import Callable
+
 from cloaiservice import config
 
 
