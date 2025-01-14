@@ -8,7 +8,7 @@ from typing import Any
 import fastapi
 import pytest
 from fastapi import status
-
+from typing import Callable
 from cloaiservice import config
 
 
@@ -36,13 +36,12 @@ def config_json() -> str:
     """
 
 
-def reset_env_variables(*env_vars: str) -> None:
+def reset_env_variables(*env_vars: str) -> Callable:
     """Saves environment variables and resets them after the test."""
-    from typing import Callable
 
     def decorator(function: Callable) -> Callable:
         @functools.wraps(function)
-        def wrapper(*args: Any, **kwargs: Any) -> Callable:  # noqa: ANN401
+        def wrapper(*args: Any, **kwargs: Any) -> None:  # noqa: ANN401
             cache = {var: os.environ.get(var, "") for var in env_vars}
             try:
                 function(*args, **kwargs)
