@@ -1,5 +1,7 @@
 import pathlib
 
+import fastapi
+from fastapi import status
 import pytest
 
 from cloaiservice import config
@@ -7,6 +9,10 @@ from cloaiservice import config
 import os
 
 import functools
+
+@pytest.fixture(autouse=True, scope="function")
+def reset_cache():
+    config.get_config.cache_clear()
 
 @pytest.fixture
 def config_json() -> str:
@@ -63,3 +69,14 @@ def test_get_config_file(tmp_path: pathlib.Path, config_json:str ) -> None:
 
     assert len(result.clients) == 1
     assert result.clients['test-model'].client.model == "anthropic.claude-3-5-sonnet-20241022-v2:0"
+
+@reset_env_variables("CONFIG_PATH", "CONFIG_JSON")
+def test_get_config_not_specified() -> None:
+    """Test that an error is raised for no config specified."""
+    os.environ["CONFIG_PATH"] = ""
+    os.environ["CONFIG_JSON"] = ""
+
+    with pytest.raises(fastapi.HTTPException) as exc_info:
+        config.get_config()
+
+    assert exc_info.value.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR

@@ -111,8 +111,8 @@ def get_config() -> Config:
     config_json = environ.get("CONFIG_JSON")
     if not config_json:
         try:
-           config_json = config_path.read_text()
-        except FileNotFoundError:
+            config_json = config_path.read_text()
+        except (FileNotFoundError, IsADirectoryError):
             raise fastapi.HTTPException(
                 status.HTTP_500_INTERNAL_SERVER_ERROR,
                 "Config file not found and CONFIG_JSON environment variable not set.",
