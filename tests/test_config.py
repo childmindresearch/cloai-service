@@ -1,23 +1,26 @@
+"""Unit tests for the config module."""
+
+import functools
+import os
 import pathlib
+from typing import Any
 
 import fastapi
-from fastapi import status
 import pytest
+from fastapi import status
 
 from cloaiservice import config
 
-import os
-
-import functools
-
 
 @pytest.fixture(autouse=True, scope="function")
-def reset_cache():
+def reset_cache() -> None:
+    """Resets the get_config cache on every test."""
     config.get_config.cache_clear()
 
 
 @pytest.fixture
 def config_json() -> str:
+    """A JSON configuration used for the tests."""
     return """
     {
         "clients": {
@@ -33,15 +36,14 @@ def config_json() -> str:
     """
 
 
-def reset_env_variables(*env_vars):
-    """Wrapper that saves specified environment variables and resets them after the test."""
+def reset_env_variables(*env_vars: str) -> None:
+    """Saves environment variables and resets them after the test."""
+    from typing import Callable
 
-    def decorator(function):
+    def decorator(function: Callable) -> Callable:
         @functools.wraps(function)
-        def wrapper(*args, **kwargs):
-            cache = {
-                var: os.environ.get(var, "") for var in env_vars
-            }
+        def wrapper(*args: Any, **kwargs: Any) -> Callable:  # noqa: ANN401
+            cache = {var: os.environ.get(var, "") for var in env_vars}
             try:
                 function(*args, **kwargs)
             finally:
