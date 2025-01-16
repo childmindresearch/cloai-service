@@ -5,6 +5,7 @@ import os
 import pathlib
 from typing import Any, Callable
 
+import cloai
 import fastapi
 import pytest
 from fastapi import status
@@ -96,3 +97,97 @@ def test_get_config_not_specified() -> None:
         config.get_config()
 
     assert exc_info.value.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
+
+
+def test_create_clients_happy_path() -> None:
+    """Tests that LargeLangeModels are correctly created for correct JSON."""
+    config_json = {
+        "clients": {
+            "gpt4o": {"type": "openai", "model": "gpt-4o", "api_key": "abc"},
+            "gpt3": {"type": "openai", "model": "gpt-3", "api_key": "abc"},
+        }
+    }
+
+    result = config.create_clients(config_json)
+
+    assert result.keys() == {"gpt4o", "gpt3"}
+    assert isinstance(result["gpt4o"], cloai.LargeLanguageModel)
+    assert isinstance(result["gpt3"], cloai.LargeLanguageModel)
+
+
+def test_create_clients_no_type() -> None:
+    """Tests that an error is raised for no type."""
+    config_json = {
+        "clients": {
+            "gpt4o": {"model": "gpt-4o", "api_key": "abc"},
+        }
+    }
+
+    with pytest.raises(fastapi.HTTPException) as exc_info:
+        config.create_clients(config_json)
+
+    assert exc_info.value.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
+    assert "missing a 'type'" in exc_info.value.detail
+
+
+def test_create_clients_unknown_type() -> None:
+    """Tests that an error is raised for an unknown type."""
+    config_json = {
+        "clients": {
+            "gpt4o": {"type": "Swift", "model": "gpt-4o", "api_key": "abc"},
+        }
+    }
+
+    with pytest.raises(fastapi.HTTPException) as exc_info:
+        config.create_clients(config_json)
+
+    assert exc_info.value.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
+    assert "Unknown client" in exc_info.value.detail
+
+
+def test_create_clients_pydantic_validation_error() -> None:
+    """Tests that an error is raised for an unknown type."""
+    config_json = {
+        "clients": {
+            "sonnet": {
+                "type": "bedrock-anthropic",
+                "model": "anthropic.claude-3-5-sonnet-20241022-v2:0",
+                "aws_access_key": "SECRETKEY",
+                "aws_secret_key": "SECRETKEY",
+                "region": "us-east-2",
+            },
+        }
+    }
+
+    with pytest.raises(fastapi.HTTPException) as exc_info:
+        config.create_clients(config_json)
+
+    assert exc_info.value.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
+    assert "aws_access_key" in exc_info.value.detail
+    assert "aws_secret_key" in exc_info.value.detail
+    assert "SECRETKEY" not in exc_info.value.detail
+
+
+def test_create_clients_multiple_errors() -> None:
+    """Tests that multiple errors are raised for multiple mistakes."""
+    config_json = {
+        "clients": {
+            "gpt4o": {"model": "gpt-4o", "api_key": "abc"},
+            "sonnet": {
+                "type": "bedrock-anthropic",
+                "model": "anthropic.claude-3-5-sonnet-20241022-v2:0",
+                "aws_access_key": "SECRETKEY",
+                "aws_secret_key": "SECRETKEY",
+                "region": "us-east-2",
+            },
+        }
+    }
+
+    with pytest.raises(fastapi.HTTPException) as exc_info:
+        config.create_clients(config_json)
+
+    assert exc_info.value.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
+    assert "Client gpt4o is missing a 'type'" in exc_info.value.detail
+    assert "aws_access_key" in exc_info.value.detail
+    assert "aws_secret_key" in exc_info.value.detail
+    assert "SECRETKEY" not in exc_info.value.detail
