@@ -1,5 +1,6 @@
 FROM python:3.11-alpine
 
+ENV PORT=8000
 RUN pip install poetry
 
 WORKDIR /app
@@ -8,6 +9,6 @@ COPY src src
 
 RUN poetry install --no-cache
 
-EXPOSE 8000
+EXPOSE $PORT
 
-CMD ["poetry", "run", "uvicorn", "cloaiservice.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "poetry run uvicorn cloaiservice.main:app --host 0.0.0.0 --port $PORT"]
