@@ -2,12 +2,14 @@
 
 from fastapi import APIRouter, FastAPI
 
+from cloaiservice import config
 from cloaiservice.routes import clients, health, llm
 
 app = FastAPI(
     title="cloai API Service",
     description="API service for interacting with various LLM providers",
     version="0.1.0",
+    on_startup=[config.get_config],  # Ensure that the config is correct on startup
 )
 
 version_router = APIRouter(prefix="/v1")
