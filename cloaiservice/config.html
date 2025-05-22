@@ -170,7 +170,7 @@
 </span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Bedrock Anthropic client configuration.&quot;&quot;&quot;</span>
 </span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a>
 </span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a>    <span class="nb">type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;bedrock-anthropic&quot;</span><span class="p">]</span>
-</span><span id="L-22"><a href="#L-22"><span class="linenos"> 22</span></a>    <span class="n">model</span><span class="p">:</span> <span class="n">cloai_bedrock</span><span class="o">.</span><span class="n">ANTHROPIC_BEDROCK_MODELS</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos"> 22</span></a>    <span class="n">model</span><span class="p">:</span> <span class="n">cloai_bedrock</span><span class="o">.</span><span class="n">ANTHROPIC_BEDROCK_MODELS</span> <span class="o">|</span> <span class="nb">str</span>
 </span><span id="L-23"><a href="#L-23"><span class="linenos"> 23</span></a>    <span class="n">aws_access_key</span><span class="p">:</span> <span class="n">pydantic</span><span class="o">.</span><span class="n">SecretStr</span> <span class="o">=</span> <span class="n">pydantic</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
 </span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a>        <span class="o">...</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">20</span>
 </span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a>    <span class="p">)</span>
@@ -340,7 +340,7 @@
 </span><span id="BedrockAnthropicConfig-20"><a href="#BedrockAnthropicConfig-20"><span class="linenos">20</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Bedrock Anthropic client configuration.&quot;&quot;&quot;</span>
 </span><span id="BedrockAnthropicConfig-21"><a href="#BedrockAnthropicConfig-21"><span class="linenos">21</span></a>
 </span><span id="BedrockAnthropicConfig-22"><a href="#BedrockAnthropicConfig-22"><span class="linenos">22</span></a>    <span class="nb">type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;bedrock-anthropic&quot;</span><span class="p">]</span>
-</span><span id="BedrockAnthropicConfig-23"><a href="#BedrockAnthropicConfig-23"><span class="linenos">23</span></a>    <span class="n">model</span><span class="p">:</span> <span class="n">cloai_bedrock</span><span class="o">.</span><span class="n">ANTHROPIC_BEDROCK_MODELS</span>
+</span><span id="BedrockAnthropicConfig-23"><a href="#BedrockAnthropicConfig-23"><span class="linenos">23</span></a>    <span class="n">model</span><span class="p">:</span> <span class="n">cloai_bedrock</span><span class="o">.</span><span class="n">ANTHROPIC_BEDROCK_MODELS</span> <span class="o">|</span> <span class="nb">str</span>
 </span><span id="BedrockAnthropicConfig-24"><a href="#BedrockAnthropicConfig-24"><span class="linenos">24</span></a>    <span class="n">aws_access_key</span><span class="p">:</span> <span class="n">pydantic</span><span class="o">.</span><span class="n">SecretStr</span> <span class="o">=</span> <span class="n">pydantic</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
 </span><span id="BedrockAnthropicConfig-25"><a href="#BedrockAnthropicConfig-25"><span class="linenos">25</span></a>        <span class="o">...</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">20</span>
 </span><span id="BedrockAnthropicConfig-26"><a href="#BedrockAnthropicConfig-26"><span class="linenos">26</span></a>    <span class="p">)</span>
@@ -379,7 +379,7 @@
                             </div>
                             <div id="BedrockAnthropicConfig.model" class="classattr">
                                 <div class="attr variable">
-            <span class="name">model</span><span class="annotation">: Literal[&#39;anthropic.claude-3-5-sonnet-20241022-v2:0&#39;, &#39;anthropic.claude-3-5-sonnet-20240620-v1:0&#39;, &#39;anthropic.claude-3-opus-20240229-v1:0&#39;, &#39;anthropic.claude-3-5-haiku-20241022-v1:0&#39;, &#39;anthropic.claude-3-haiku-20240307-v1:0&#39;, &#39;anthropic.claude-sonnet-4-20250514-v1:0&#39;, &#39;anthropic.claude-opus-4-20250514-v1:0&#39;]</span>
+            <span class="name">model</span><span class="annotation">: Union[Literal[&#39;anthropic.claude-3-5-sonnet-20241022-v2:0&#39;, &#39;anthropic.claude-3-5-sonnet-20240620-v1:0&#39;, &#39;anthropic.claude-3-opus-20240229-v1:0&#39;, &#39;anthropic.claude-3-5-haiku-20241022-v1:0&#39;, &#39;anthropic.claude-3-haiku-20240307-v1:0&#39;, &#39;anthropic.claude-sonnet-4-20250514-v1:0&#39;, &#39;anthropic.claude-opus-4-20250514-v1:0&#39;], str]</span>
 
         
     </div>
