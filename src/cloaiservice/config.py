@@ -19,7 +19,7 @@ class BedrockAnthropicConfig(BaseModel):
     """Bedrock Anthropic client configuration."""
 
     type: Literal["bedrock-anthropic"]
-    model: cloai_bedrock.ANTHROPIC_BEDROCK_MODELS
+    model: cloai_bedrock.ANTHROPIC_BEDROCK_MODELS | str
     aws_access_key: pydantic.SecretStr = pydantic.Field(
         ..., min_length=20, max_length=20
     )
