@@ -16,14 +16,14 @@ cloai = "^1.1.0"
 openai = "^1.107.1"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.3.3"
-mypy = "^1.13.0"
-pre-commit = "^4.0.1"
-pytest-cov = "^6.0.0"
-ruff = "^0.9.1"
+pytest = "^8.4.2"
+mypy = "^1.18.2"
+pre-commit = "^4.3.0"
+pytest-cov = "^7.0.0"
+ruff = "^0.13.2"
 
 [tool.poetry.group.docs.dependencies]
-pdoc = "^15.0.0"
+pdoc = "^15.0.4"
 
 [tool.pytest.ini_options]
 pythonpath = [
